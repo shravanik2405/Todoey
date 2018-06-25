@@ -15,7 +15,7 @@ class TodoListViewController: UITableViewController {
         // Do any additional setup after loading the view, typically from a nib.
     }
 
-    let itemArray = ["First cell","Two cell","Three cell"]
+    var itemArray : [String] = [""]
 
     
     //MARK - Tableview Datasource method
@@ -34,12 +34,11 @@ class TodoListViewController: UITableViewController {
      //MARK - Tableview Delegate method
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-       //  print(itemArray[indexPath.row])
         
       // to remove the grey selection that appears after selection the cell
          tableView.deselectRow(at: indexPath, animated: true)
       
-     // to add checkmarks to the cells
+     
 //        if tableView.cellForRow(at: indexPath)?.accessoryType == .checkmark{
 //            tableView.cellForRow(at: indexPath)?.accessoryType = .none
 //        }
@@ -47,6 +46,7 @@ class TodoListViewController: UITableViewController {
 //            tableView.cellForRow(at: indexPath)?.accessoryType = .checkmark
 //        }
 //
+        // to add checkmarks to the cells
         let cell = tableView.cellForRow(at: indexPath)
         if cell?.accessoryType == .checkmark{
             cell?.accessoryType = .none
@@ -55,6 +55,41 @@ class TodoListViewController: UITableViewController {
             cell?.accessoryType = .checkmark
         }
     }
+    
+    @IBAction func addItem(_ sender: Any) {
+        
+        var textField = UITextField()
+        // created a new alert
+        let alert = UIAlertController.init(title: "Add new item", message: " ", preferredStyle: .alert )
+        // added alert action
+        let alertAction = UIAlertAction.init(title: "Add", style: .default) { (action) in
+            self.itemArray.append(textField.text!)
+            self.tableView.reloadData()
+
+        }
+        let cancelAction = UIAlertAction.init(title: "Cancel", style: .cancel) { (action) in
+            alert.dismiss(animated: true, completion: nil)
+        }
+        alert.addAction(cancelAction)
+        
+        // calling the add new item alertaction
+        alert.addAction(alertAction)
+      
+        
+        // added new textfield on the alert
+        alert.addTextField { (newItem) in
+            
+        // setting placeholder for the textfiled
+        newItem.placeholder = "Create new item"
+            
+        // assigned the value of newitem textfield to the textfield varialble created under this function, to access the local newitem variable
+            textField = newItem
+            
+        }
+        present(alert, animated: true, completion: nil)
+    }
+
+    
 
 }
 
