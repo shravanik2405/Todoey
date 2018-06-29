@@ -7,18 +7,20 @@
 //
 
 import UIKit
+import CoreData
 
 class TodoListViewController: UITableViewController {
     
-        var itemArray = [Item]()
+    //creating the object context from AppDelgate class
+    let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
     
-        let dataFilePath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first?.appendingPathComponent("Items.plist")
+         var itemArray = [Item]()
     
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib
         
-        loadItems()
+      loadItems()
 
     }
     
@@ -51,20 +53,31 @@ class TodoListViewController: UITableViewController {
         // to remove the grey selection that appears after selection the cell
         tableView.deselectRow(at: indexPath, animated: true)
         
+        //to check and uncheck the cell
         itemArray[indexPath.row].done = !itemArray[indexPath.row].done
+        
+        //
+        let cell = tableView.cellForRow(at: indexPath)
+        cell?.setEditing(true, animated: true)
+        
         
         //calling the save method after checking and unchecking the items
         saveItems()
         
-       /* if itemArray[indexPath.row].done == false {
-            itemArray[indexPath.row].done = true
-        }
-        else{
-            itemArray[indexPath.row].done = false
-        }*/
-        
         tableView.reloadData()
     }
+    
+    // MARK - delete item
+    
+    override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCellEditingStyle, forRowAt indexPath: IndexPath) {
+        if editingStyle == .delete{
+            context.delete(itemArray[indexPath.row])
+            itemArray.remove(at: indexPath.row)
+            saveItems()
+            tableView.reloadData()
+        }
+    }
+    
     
     @IBAction func addItem(_ sender: Any) {
         
@@ -75,10 +88,11 @@ class TodoListViewController: UITableViewController {
         let alertAction = UIAlertAction.init(title: "Add", style: .default) { (action) in
             
             // Creating a new object of Item class
-            let newItem = Item()
+            let newItem = Item(context: self.context)
             
             // assigning the texfield's value to the newItem object's title property
             newItem.title = textField.text!
+            newItem.done = false
             
             //apending the newItem object to the array
             self.itemArray.append(newItem)
@@ -110,28 +124,26 @@ class TodoListViewController: UITableViewController {
     //MARK - Saving data
     
     func saveItems(){
-        let encoder = PropertyListEncoder()
         do {
-            let data = try encoder.encode(itemArray)
-            try data.write(to: dataFilePath!)
+            try context.save()
             tableView.reloadData()
         }
         catch {
-            print("error in encoding array \(error)")
+            print("error in while \(error)")
         }
     }
     
+    // Retrieving data
+    
     func loadItems(){
-      
-        if let data = try? Data(contentsOf: dataFilePath!){
-        let decoder = PropertyListDecoder()
-        do {
-        itemArray = try decoder.decode([Item].self, from: data)
+        let request : NSFetchRequest<Item> = Item.fetchRequest()
+        do{
+         itemArray =   try context.fetch(request)
         }
         catch{
-            print("Error in decoding\(error)")
+            print("Error while fetching data \(error)")
         }
-        } }
+  }
     
 }
 
