@@ -26,6 +26,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
     
     // MARK: - Core Data stack
+    //        Solution to Issue no.2 by Parag
+    static var abc: Int = 0
     
     lazy var persistentContainer: NSPersistentContainer = {
   

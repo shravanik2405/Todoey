@@ -20,6 +20,8 @@ class TodoListViewController: UITableViewController {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib
         
+//        Solution to Issue no.2 by Parag
+        AppDelegate.abc = 1
       loadItems()
 
     }
